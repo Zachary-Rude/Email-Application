@@ -43,21 +43,12 @@ function checkCookieMiddleware(req, res, next) {
 		})
 		.catch((error) => {
 			console.log(error);
-			res.redirect("/signOut");
+			res.redirect("/sign-out");
 		});
 }
 
-function checkValidUser(req, res, next) {
-	if (req.decodedClaims.phone_number && req.decodedClaims.email_verified) {
-		next();
-		return;
-	} else {
-		res.redirect("/updateProfile");
-	}
-}
-
 function setCookieLogin(idToken, res) {
-	const expiresIn = 60 * 60 * 24 * 5 * 1000;
+        const expiresIn = 60 * 60 * 24 * 5 * 1000;
 	admin
 		.auth()
 		.createSessionCookie(idToken, {
@@ -76,14 +67,7 @@ function setCookieLogin(idToken, res) {
 					.verifyIdToken(idToken)
 					.then((decodedClaims) => {
 						console.log(decodedClaims);
-						if (
-							decodedClaims.phone_number &&
-							decodedClaims.email_verified
-						) {
-							return res.redirect("/inbox");
-						} else {
-							return res.redirect("/updateProfile");
-						}
+					        return res.redirect("/inbox");
 					})
 					.catch((error) => {
 						console.log(error);
@@ -119,7 +103,6 @@ function setCookieRegister(idToken, res) {
 					.auth()
 					.verifyIdToken(idToken)
 					.then((decodedClaims) => {
-						res.redirect("/updateProfile");
 						return console.log(decodedClaims);
 					})
 					.catch((error) => {
@@ -179,22 +162,22 @@ app.get("/register", (req, res) => {
 app.get("/sessionRegister", (req, res) => {
 	setCookieRegister(req.query.idToken, res);
 });
-app.get("/signOut", (req, res) => {
+app.get("/sign-out", (req, res) => {
 	res.clearCookie("__session");
 	res.redirect("/login");
 });
-app.get("/forgotPassword", (req, res) => {
+app.get("/forgot-password", (req, res) => {
 	if (req.cookies.__session) {
 		res.redirect("/inbox");
 	} else {
 		res.render("forgotPassword");
 	}
 });
-app.get("/updatePassword", (req, res) => {
+app.get("/update-password", (req, res) => {
 	res.clearCookie("__session");
 	res.render("updatePassword");
 });
-app.post("/passwordReset", (req, res) => {
+app.post("/password-reset", (req, res) => {
 	if (req.cookies.__session) {
 		res.redirect("/inbox");
 	} else {
@@ -222,7 +205,7 @@ app.get("/uid", checkCookieMiddleware, (req, res) => {
 
 ===============================================>>>>>*/
 
-app.get("/userProfile", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/user-profile", checkCookieMiddleware, checkValidUser, (req, res) => {
 	db.collection("users")
 		.doc(req.decodedClaims.uid)
 		.get()
@@ -245,73 +228,7 @@ app.get("/userProfile", checkCookieMiddleware, checkValidUser, (req, res) => {
 			res.redirect("/login");
 		});
 });
-app.post(
-	"/onUserProfileUpdate",
-	checkCookieMiddleware,
-	checkValidUser,
-	(req, res) => {
-		admin
-			.auth()
-			.updateUser(req.decodedClaims.uid, {
-				phoneNumber: req.body.countryCode + req.body.mobile,
-				displayName: req.body.firstName + " " + req.body.lastName,
-				emailVerified: true,
-			})
-			.then((userRecord) => {
-				console.log("Successfully updated user", userRecord.toJSON());
-				db.collection("users").doc(userRecord.uid).set({
-					DOB: req.body.DOB,
-					addressLine1: req.body.address1,
-					addressLine2: req.body.address2,
-					city: req.body.city,
-					country: req.body.country,
-					bio: req.body.bio,
-					postalCode: req.body.postalCode,
-				});
-				return res.redirect("/signOut");
-			})
-			.catch((error) => {
-				console.log("Error updating user:", error);
-			});
-	}
-);
-app.get("/updateProfile", checkCookieMiddleware, (req, res) => {
-	if (req.decodedClaims.phone_number && req.decodedClaims.email_verified) {
-		res.redirect("/inbox");
-	} else {
-		user = Object.assign({}, req.decodedClaims);
-		res.render("updateProfile", {
-			user,
-		});
-		user = Object.assign({}, req.decodedClaims);
-	}
-});
-app.post("/onUpdateProfile", checkCookieMiddleware, (req, res) => {
-	admin
-		.auth()
-		.updateUser(req.decodedClaims.uid, {
-			phoneNumber: req.body.countryCode + req.body.mobile,
-			displayName: req.body.firstName + " " + req.body.lastName,
-			emailVerified: true,
-		})
-		.then((userRecord) => {
-			console.log("Successfully updated user", userRecord.toJSON());
-			db.collection("users").doc(userRecord.uid).set({
-				DOB: req.body.DOB,
-				addressLine1: req.body.address1,
-				addressLine2: req.body.address2,
-				city: req.body.city,
-				country: req.body.country,
-				bio: req.body.bio,
-				postalCode: req.body.postalCode,
-			});
-			return res.redirect("/signOut");
-		})
-		.catch((error) => {
-			console.log("Error updating user:", error);
-		});
-});
-app.get("/deleteProfile", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/delete-profile", checkCookieMiddleware, checkValidUser, (req, res) => {
 	admin
 		.auth()
 		.deleteUser(req.decodedClaims.uid)
@@ -321,15 +238,15 @@ app.get("/deleteProfile", checkCookieMiddleware, checkValidUser, (req, res) => {
 				.delete()
 				.catch((err) => {
 					console.log("Error getting document", err);
-					return res.redirect("/signOut");
+					return res.redirect("/sign-out");
 				});
-			return res.redirect("/signOut");
+			return res.redirect("/sign-out");
 		})
 		.catch((error) => {
 			console.log("Error deleting user:", error);
 		});
 });
-app.post("/userQuery", (req, res) => {
+app.post("/user-query", (req, res) => {
 	admin
 		.auth()
 		.getUserByEmail(req.body.checkEmail)
@@ -388,7 +305,7 @@ app.get("/contacts", checkCookieMiddleware, checkValidUser, (req, res) => {
 			res.redirect("/login");
 		});
 });
-app.get("/addContact", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/add-contact", checkCookieMiddleware, checkValidUser, (req, res) => {
 	user = Object.assign({}, req.decodedClaims);
 	res.render("addContact", {
 		user,
@@ -409,7 +326,7 @@ app.post("/onAddContact", checkCookieMiddleware, checkValidUser, (req, res) => {
 		});
 	return res.redirect("/inbox");
 });
-app.get("/editContact", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/edit-contact", checkCookieMiddleware, checkValidUser, (req, res) => {
 	db.collection("users")
 		.doc(req.decodedClaims.uid)
 		.collection("contacts")
@@ -454,7 +371,7 @@ app.post(
 		return res.redirect("/inbox");
 	}
 );
-app.get("/deleteContact", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/delete-contact", checkCookieMiddleware, checkValidUser, (req, res) => {
 	db.collection("users")
 		.doc(req.decodedClaims.uid)
 		.collection("contacts")
@@ -501,7 +418,7 @@ app.get("/inbox", checkCookieMiddleware, checkValidUser, (req, res) => {
 			res.redirect("/login");
 		});
 });
-app.get("/readEmail", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/read-email", checkCookieMiddleware, checkValidUser, (req, res) => {
 	db.collection("users")
 		.doc(req.decodedClaims.uid)
 		.collection("receivedEmails")
@@ -526,7 +443,7 @@ app.get("/readEmail", checkCookieMiddleware, checkValidUser, (req, res) => {
 			res.redirect("/login");
 		});
 });
-app.get("/readSentEmail", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/read-sent-email", checkCookieMiddleware, checkValidUser, (req, res) => {
 	db.collection("users")
 		.doc(req.decodedClaims.uid)
 		.collection("sentEmails")
@@ -609,7 +526,7 @@ app.post("/markAsUnread", checkCookieMiddleware, checkValidUser, (req, res) => {
 			res.redirect("/login");
 		});
 });
-app.get("/sentEmails", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/sent-emails", checkCookieMiddleware, checkValidUser, (req, res) => {
 	var i = 0,
 		emailData = new Array(),
 		emailID = new Array();
@@ -638,7 +555,7 @@ app.get("/sentEmails", checkCookieMiddleware, checkValidUser, (req, res) => {
 			res.redirect("/login");
 		});
 });
-app.get("/composeEmail", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/compose-email", checkCookieMiddleware, checkValidUser, (req, res) => {
 	user = Object.assign({}, req.decodedClaims);
 	res.render("composeEmail", {
 		user,
@@ -671,7 +588,7 @@ app.post("/sendEmail", checkCookieMiddleware, checkValidUser, (req, res) => {
 					from: req.decodedClaims.email,
 				})
 				.then(() => {
-					return res.redirect("/sentEmails");
+					return res.redirect("/sent-emails");
 				})
 				.catch((err) => {
 					console.log("Error ", err);
@@ -683,7 +600,7 @@ app.post("/sendEmail", checkCookieMiddleware, checkValidUser, (req, res) => {
 			res.redirect("/login");
 		});
 });
-app.get("/draftedEmails", checkCookieMiddleware, checkValidUser, (req, res) => {
+app.get("/drafted-emails", checkCookieMiddleware, checkValidUser, (req, res) => {
 	var i = 0,
 		emailData = new Array(),
 		emailID = new Array();
