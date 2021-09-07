@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>User Profile | Email Application</title>
+		<title>User Profile | Email</title>
 		<%- include('components/meta') %> <%- include('components/link') %>
 	</head>
 
@@ -145,24 +145,6 @@
 														/>
 													</div>
 												</div>
-												<div class="col-md-6">
-													<div class="form-group">
-														<label for="mobile"
-															>Mobile
-															number</label
-														>
-														<input
-															type="tel"
-															name="mobile"
-															id="mobile"
-															required
-															class="form-control border-input"
-															pattern="^[6-9]\d{9}$"
-															title="10 digit mobile number"
-															autocomplete="tel-national"
-														/>
-													</div>
-												</div>
 											</div>
 											<div class="row">
 												<div class="col-md-6">
@@ -199,63 +181,6 @@
 												</div>
 											</div>
 											<div class="row">
-												<div class="col-md-12">
-													<div class="form-group">
-														<label for="address1"
-															>Address Line
-															1</label
-														>
-														<input
-															id="address1"
-															type="text"
-															class="form-control border-input"
-															name="address1"
-															required
-															placeholder="Address Line 1"
-															autocomplete="address-line1"
-															value="<%- userProfile.addressLine1 -%>"
-														/>
-													</div>
-												</div>
-											</div>
-											<div class="row">
-												<div class="col-md-12">
-													<div class="form-group">
-														<label for="address2"
-															>Address Line
-															2</label
-														>
-														<input
-															id="address2"
-															type="text"
-															class="form-control border-input"
-															name="address2"
-															required
-															placeholder="Address Line 2"
-															autocomplete="address-line2"
-															value="<%- userProfile.addressLine2 -%>"
-														/>
-													</div>
-												</div>
-											</div>
-											<div class="row">
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="city"
-															>City</label
-														>
-														<input
-															id="city"
-															type="text"
-															class="form-control border-input"
-															name="city"
-															required
-															placeholder="City"
-															autocomplete="address-level2"
-															value="<%- userProfile.city -%>"
-														/>
-													</div>
-												</div>
 												<div class="col-md-4">
 													<div class="form-group">
 														<label for="country"
@@ -270,24 +195,6 @@
 															required
 															autocomplete="country-name"
 															value="<%- userProfile.country -%>"
-														/>
-													</div>
-												</div>
-												<div class="col-md-4">
-													<div class="form-group">
-														<label for="postalCode"
-															>Postal Code</label
-														>
-														<input
-															id="postalCode"
-															type="text"
-															name="postalCode"
-															class="form-control border-input"
-															placeholder="Postal Code"
-															required
-															autocomplete="postal-code"
-															pattern="^[0-9]{6}$"
-															value="<%- userProfile.postalCode -%>"
 														/>
 													</div>
 												</div>
@@ -340,9 +247,6 @@
 			document.getElementById(
 				"countryCode"
 			).value = `<%- user.phone_number -%>`.slice(0, -10);
-			document.getElementById(
-				"mobile"
-			).value = `<%- user.phone_number -%>`.slice(-10);
 			var date = new Date();
 			var DD = (date.getDate() < 10 ? "0" : "") + date.getDate();
 			var MM =
